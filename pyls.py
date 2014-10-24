@@ -1,4 +1,4 @@
-#! /home/kazufumi/.pyenv/shims/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """Pyls
