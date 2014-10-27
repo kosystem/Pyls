@@ -134,11 +134,14 @@ def addDirectorySynbol(items):
 if __name__ == '__main__':
     args = docopt(__doc__, version='1.0.0')
 
+    # get directiory path ---------------------------
     if args['<targetDir>'] is None:
-        args['<targetDir>'] = './'
+        args['<targetDir>'] = '.'
+    elif args['<targetDir>'].endswith('/'):
+        args['<targetDir>'] = args['<targetDir>'][:-1]
     path = args['<targetDir>']
 
-    # list up items
+    # list up items ---------------------------------
     if args['--all']:
         items = listAllItems(path)
     elif args['--almost-all']:
@@ -146,10 +149,38 @@ if __name__ == '__main__':
     else:
         items = listItems(path)
 
-    # sort items
+    # sort items -----------------------------------
     sortKey = lambda f: f.lower() if not f.startswith('.') else f[1:].lower()
     items.sort(key=sortKey)
+    if args['-S']:  # file size
+        sortKey = lambda f: os.lstat(path+'/'+f).st_size
+        items.sort(key=sortKey, reverse=True)
+    elif args['-t']:  # modification time
+        sortKey = lambda f: os.lstat(path+'/'+f).st_mtime
+        items.sort(key=sortKey, reverse=True)
 
-    # print items
+    if args['--reverse']:
+        items.reverse()
+
+    # print items ----------------------------------
+    if args['--color']:
+        pass
+    if args['--classify']:
+        pass
+    elif args['--file-type']:
+        pass
+
+    if args['-l']:
+        if args['--human-readable']:
+            pass
+    else:
+        if args['-C']:
+            pass
+        if args['-x']:
+            pass
+        if args['-1']:
+            pass
+
     # printItems(path, items, args['--color'], args['--classify'])
     columnsPrint(items)
+    # ----------------------------------------------
