@@ -131,6 +131,18 @@ def addDirectorySynbol(items):
     return items
 
 
+def sortItemsByTime(path, items):
+    sortKey = lambda f: os.lstat(path+'/'+f).st_mtime
+    items.sort(key=sortKey, reverse=True)
+    return items
+
+
+def sortItemsBySize(path, items):
+    sortKey = lambda f: os.lstat(path+'/'+f).st_size
+    items.sort(key=sortKey, reverse=True)
+    return items
+
+
 if __name__ == '__main__':
     args = docopt(__doc__, version='1.0.0')
 
@@ -152,12 +164,10 @@ if __name__ == '__main__':
     # sort items -----------------------------------
     sortKey = lambda f: f.lower() if not f.startswith('.') else f[1:].lower()
     items.sort(key=sortKey)
-    if args['-S']:  # file size
-        sortKey = lambda f: os.lstat(path+'/'+f).st_size
-        items.sort(key=sortKey, reverse=True)
-    elif args['-t']:  # modification time
-        sortKey = lambda f: os.lstat(path+'/'+f).st_mtime
-        items.sort(key=sortKey, reverse=True)
+    if args['-S']:
+        items = sortItemsBySize(path, items)
+    elif args['-t']:
+        items = sortItemsByTime(path, items)
 
     if args['--reverse']:
         items.reverse()
@@ -173,6 +183,10 @@ if __name__ == '__main__':
     if args['-l']:
         if args['--human-readable']:
             pass
+        # oct(os.lstat(file)[stat.ST_MODE])
+        # st_time = os.lstat(file).st_mtime
+        # date_time = datetime.datetime.formattimestamp(st_time)
+        # date_time.strftime('%Y-%m-%d %H:%M:%S)
     else:
         if args['-C']:
             pass
