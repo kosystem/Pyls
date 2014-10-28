@@ -47,7 +47,7 @@ C_MAGENTA = '\033[95m'
 C_CYAN = '\033[96m'
 C_WHITE = '\033[97m'
 C_END = '\033[00m'
-C_BOLD = '\033[1m'
+C_BOLD = '\033[01m'
 
 
 def listAllItems(path):
@@ -71,9 +71,7 @@ def appendColor(path, item, color=True, classify=True):
     filepath = path + '/' + item
     if os.path.islink(filepath):
         if os.path.isdir(filepath) or os.path.isfile(filepath):
-            return (
-                (C_CYAN if color else '') + item + C_END
-                + ('@' if classify else ''))
+            return (C_CYAN if color else '') + item + C_END + ('@' if classify else ''))
         else:
             return (C_RED if color else '') + item + C_END + ('@' if classify else '')
     elif os.path.isdir(filepath):
