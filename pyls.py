@@ -46,7 +46,7 @@ C_BLUE = '\033[94m'
 C_MAGENTA = '\033[95m'
 C_CYAN = '\033[96m'
 C_WHITE = '\033[97m'
-C_END = '\033[0m'
+C_END = '\033[00m'
 C_BOLD = '\033[1m'
 
 
@@ -67,7 +67,7 @@ def listItems(path):
     return filter(lambda item: not item.startswith('.'), items)
 
 
-def appendColor(path, item, color=False, classify=True):
+def appendColor(path, item, color=True, classify=True):
     filepath = path + '/' + item
     if os.path.islink(filepath):
         if os.path.isdir(filepath) or os.path.isfile(filepath):
@@ -81,7 +81,7 @@ def appendColor(path, item, color=False, classify=True):
     elif os.access(filepath, os.X_OK):
         return (C_GREEN if color else '') + item + C_END + ('*' if classify else '')
     else:
-        return item
+        return (C_END if color else '') + item + C_END
     
     
 def printItems(path, items, color=False, classify=False):
@@ -121,7 +121,7 @@ def columnsPrint(path, items):
             for name in items[numberOfRows*column:numberOfRows*(column+1)]:
                 maxWidth = len(name) if len(name) > maxWidth else maxWidth
             columnsWidth.append(maxWidth)
-        if sum(columnsWidth, 2*len(columnsWidth)) < int(terminalWidth):
+        if sum(columnsWidth, 3*len(columnsWidth)) < int(terminalWidth):
             outOfRange = False
         else:
             numberOfRows += 1
@@ -131,7 +131,7 @@ def columnsPrint(path, items):
     for row in xrange(numberOfRows):
         for column in xrange(numberOfColumns):
             width = columnsWidth[column]
-            formatString = '{0:%d}' % (width+1)
+            formatString = '{0:%d}' % (width+11)
             try:
                 string = formatString.format(appendColor(path, items[numberOfRows*column + row]))
                 #string = formatString.format(items[numberOfRows*column + row])
