@@ -67,6 +67,23 @@ def listItems(path):
     return filter(lambda item: not item.startswith('.'), items)
 
 
+def appendColor(path, item, color=False, classify=True):
+    filepath = path + '/' + item
+    if os.path.islink(filepath):
+        if os.path.isdir(filepath) or os.path.isfile(filepath):
+            return (
+                (C_CYAN if color else '') + item + C_END
+                + ('@' if classify else ''))
+        else:
+            return (C_RED if color else '') + item + C_END + ('@' if classify else '')
+    elif os.path.isdir(filepath):
+        return (C_BLUE if color else '') + item + C_END + ('/' if classify else '')
+    elif os.access(filepath, os.X_OK):
+        return (C_GREEN if color else '') + item + C_END + ('*' if classify else '')
+    else:
+        return item
+    
+    
 def printItems(path, items, color=False, classify=False):
     length = 0
     for item in items:
@@ -91,7 +108,7 @@ def printItems(path, items, color=False, classify=False):
     print ''
 
 
-def columnsPrint(items):
+def columnsPrint(path, items):
     outOfRange = True
     numberOfRows = 1
     terminalHeight, terminalWidth = os.popen('stty size').read().split()
@@ -116,7 +133,8 @@ def columnsPrint(items):
             width = columnsWidth[column]
             formatString = '{0:%d}' % (width+1)
             try:
-                string = formatString.format(items[numberOfRows*column + row])
+                string = formatString.format(appendColor(path, items[numberOfRows*column + row]))
+                #string = formatString.format(items[numberOfRows*column + row])
             except:
                 continue
             else:
@@ -196,5 +214,5 @@ if __name__ == '__main__':
             pass
 
     # printItems(path, items, args['--color'], args['--classify'])
-    columnsPrint(items)
+    columnsPrint(path, items)
     # ----------------------------------------------
