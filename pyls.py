@@ -14,20 +14,12 @@ Options:
         --color                 colorize the output.  WHEN defaults to `always'
                                  or can be `never' or `auto'.  More info below
     -F, --classify             append indicator (one of */=>@|) to entries
-        --file-type            likewise, except do not append `*'
-    -g                         like -l, but do not list owner
-    -G, --no-group             in a long listing, don't print group names
     -h, --human-readable       with -l, print sizes in human readable format
                                  (e.g., 1K 234M 2G)
     -l                         use a long listing format
-    -L, --dereference          when showing file information for a symbolic
-                                 link, show information for the file the link
-                                 references rather than for the link itself
     -r, --reverse              reverse order while sorting
-    -R, --recursive            list subdirectories recursively
     -S                         sort by file size
     -t                         sort by modification time, newest first
-    -x                         list entries by lines instead of by columns
     -1                         list one file per line
 
 Othres:
@@ -244,6 +236,4 @@ if __name__ == '__main__':
         else:  # and args['-C']
             columnsPrint(path, items, args['--color'], args['--classify'])
 
-    if args['-x']:
-        pass
     # ----------------------------------------------
