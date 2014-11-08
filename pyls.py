@@ -67,46 +67,39 @@ def listItems(path):
     return filter(lambda item: not item.startswith('.'), items)
 
 
-def appendColor(path, item, color=True, classify=True):
+def appendColor(path, item, color=False, classify=False):
     filepath = path + '/' + item
+    colorCode = ''
+    endCode = C_END if color else ''
+    indicator = ''
     if os.path.islink(filepath):
         if os.path.isdir(filepath) or os.path.isfile(filepath):
-            return (C_CYAN if color else '') + item + C_END + ('@' if classify else ''))
+            colorCode = C_CYAN if color else ''
         else:
-            return (C_RED if color else '') + item + C_END + ('@' if classify else '')
+            colorCode = C_RED if color else ''
+        indicator = '@' if classify else ''
     elif os.path.isdir(filepath):
-        return (C_BLUE if color else '') + item + C_END + ('/' if classify else '')
+        colorCode = C_BLUE if color else ''
+        indicator = '/' if classify else ''
     elif os.access(filepath, os.X_OK):
-        return (C_GREEN if color else '') + item + C_END + ('*' if classify else '')
+        colorCode = C_GREEN if color else ''
+        indicator = '*' if classify else ''
     else:
-        return (C_END if color else '') + item + C_END
-    
-    
+        colorCode = C_END if color else ''
+
+    return colorCode + item + endCode + indicator
+
+
 def printItems(path, items, color=False, classify=False):
     length = 0
     for item in items:
         length = len(item) if len(item) > length else length
 
     for item in items:
-        filepath = path + '/' + item
-        if os.path.islink(filepath):
-            if os.path.isdir(filepath) or os.path.isfile(filepath):
-                print (
-                    (C_CYAN if color else '') + item + C_END
-                    + ('@' if classify else '')),
-            else:
-                print (C_RED if color else '') + item + C_END + ('@' if classify else ''),
-        elif os.path.isdir(filepath):
-            print (C_BLUE if color else '') + item + C_END + ('/' if classify else ''),
-        elif os.access(filepath, os.X_OK):
-            print (C_GREEN if color else '') + item + C_END + ('*' if classify else ''),
-        else:
-            print item,
-        print '',
-    print ''
+        print appendColor(path, item, color, classify)
 
 
-def columnsPrint(path, items):
+def columnsPrint(path, items, color=False, classify=False):
     outOfRange = True
     numberOfRows = 1
     terminalHeight, terminalWidth = os.popen('stty size').read().split()
@@ -129,10 +122,12 @@ def columnsPrint(path, items):
     for row in xrange(numberOfRows):
         for column in xrange(numberOfColumns):
             width = columnsWidth[column]
-            formatString = '{0:%d}' % (width+11)
+            width += 1 if not color else 11
+            width += 1 if classify else 0
+            formatString = '{0:%d}' % (width)
             try:
-                string = formatString.format(appendColor(path, items[numberOfRows*column + row]))
-                #string = formatString.format(items[numberOfRows*column + row])
+                item = items[numberOfRows*column + row]
+                string = formatString.format(appendColor(path, item, color, classify))
             except:
                 continue
             else:
@@ -204,13 +199,11 @@ if __name__ == '__main__':
         # date_time = datetime.datetime.formattimestamp(st_time)
         # date_time.strftime('%Y-%m-%d %H:%M:%S)
     else:
-        if args['-C']:
-            pass
-        if args['-x']:
-            pass
         if args['-1']:
-            pass
+            printItems(path, items, args['--color'], args['--classify'])
+        else:  # and args['-C']
+            columnsPrint(path, items, args['--color'], args['--classify'])
 
-    # printItems(path, items, args['--color'], args['--classify'])
-    columnsPrint(path, items)
+    if args['-x']:
+        pass
     # ----------------------------------------------
