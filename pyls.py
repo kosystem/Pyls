@@ -38,6 +38,7 @@ Othres:
 
 from docopt import docopt
 import os
+import stat
 
 C_RED = '\033[91m'
 C_GREEN = '\033[92m'
@@ -127,7 +128,11 @@ def columnsPrint(path, items, color=False, classify=False):
             formatString = '{0:%d}' % (width)
             try:
                 item = items[numberOfRows*column + row]
-                string = formatString.format(appendColor(path, item, color, classify))
+                string = formatString.format(appendColor(
+                    path,
+                    item,
+                    color,
+                    classify))
             except:
                 continue
             else:
@@ -152,6 +157,51 @@ def sortItemsBySize(path, items):
     sortKey = lambda f: os.lstat(path+'/'+f).st_size
     items.sort(key=sortKey, reverse=True)
     return items
+
+
+def printLongListing(path, items, color=False, classify=False):
+    import pwd
+    import grp
+    import math
+    import datetime
+
+    lengthOfnlink = max([os.lstat(path+'/'+item).st_nlink for item in items])
+    formatOfnlink = '{0:%d}' % (math.log10(lengthOfnlink) + 1)
+    lengthOfsize = max([os.lstat(path+'/'+item).st_size for item in items])
+    formatOfsize = '{0:%d}' % (math.log10(lengthOfsize) + 1)
+    for item in items:
+        filepath = path + '/' + item
+        print modString(filepath),
+        print formatOfnlink.format(os.lstat(filepath).st_nlink),
+        print pwd.getpwuid(os.lstat(filepath).st_uid)[0],
+        print grp.getgrgid(os.lstat(filepath).st_gid)[0],
+        print formatOfsize.format(os.lstat(filepath).st_size),
+        st_time = os.lstat(filepath).st_mtime
+        date_time = datetime.datetime.fromtimestamp(st_time)
+        print date_time.strftime('%b %d %H:%M'),
+        print appendColor(path, item, color, classify)
+
+
+def modString(filepath):
+    modCode = os.lstat(filepath)[stat.ST_MODE]
+    string = ''
+    if os.path.islink(filepath):
+        string += 'l'
+    elif os.path.isdir(filepath):
+        string += 'd'
+    else:
+        string += '-'
+
+    string += ('r' if modCode & 0o400 else '-')
+    string += ('w' if modCode & 0o200 else '-')
+    string += ('x' if modCode & 0o100 else '-')
+    string += ('r' if modCode & 0o040 else '-')
+    string += ('w' if modCode & 0o020 else '-')
+    string += ('x' if modCode & 0o010 else '-')
+    string += ('r' if modCode & 0o004 else '-')
+    string += ('w' if modCode & 0o002 else '-')
+    string += ('x' if modCode & 0o001 else '-')
+    return string
 
 
 if __name__ == '__main__':
@@ -184,20 +234,10 @@ if __name__ == '__main__':
         items.reverse()
 
     # print items ----------------------------------
-    if args['--color']:
-        pass
-    if args['--classify']:
-        pass
-    elif args['--file-type']:
-        pass
-
     if args['-l']:
         if args['--human-readable']:
             pass
-        # oct(os.lstat(file)[stat.ST_MODE])
-        # st_time = os.lstat(file).st_mtime
-        # date_time = datetime.datetime.formattimestamp(st_time)
-        # date_time.strftime('%Y-%m-%d %H:%M:%S)
+        printLongListing(path, items, args['--color'], args['--classify'])
     else:
         if args['-1']:
             printItems(path, items, args['--color'], args['--classify'])
