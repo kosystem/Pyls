@@ -61,7 +61,7 @@ def listItems(path):
 
 
 def appendColor(path, item, color=False, classify=False):
-    filepath = path + '/' + item
+    filepath = os.path.join(path, item)
     colorCode = ''
     endCode = C_END if color else ''
     indicator = ''
@@ -140,13 +140,13 @@ def addDirectorySynbol(items):
 
 
 def sortItemsByTime(path, items):
-    sortKey = lambda f: os.lstat(path+'/'+f).st_mtime
+    sortKey = lambda f: os.lstat(os.path.join(path, f)).st_mtime
     items.sort(key=sortKey, reverse=True)
     return items
 
 
 def sortItemsBySize(path, items):
-    sortKey = lambda f: os.lstat(path+'/'+f).st_size
+    sortKey = lambda f: os.lstat(os.path.join(path, f)).st_size
     items.sort(key=sortKey, reverse=True)
     return items
 
@@ -157,12 +157,12 @@ def printLongListing(path, items, color=False, classify=False):
     import math
     import datetime
 
-    lengthOfnlink = max([os.lstat(path+'/'+item).st_nlink for item in items])
+    lengthOfnlink = max([os.lstat(os.path.join(path, item)).st_nlink for item in items])
     formatOfnlink = '{0:%d}' % (math.log10(lengthOfnlink) + 1)
-    lengthOfsize = max([os.lstat(path+'/'+item).st_size for item in items])
+    lengthOfsize = max([os.lstat(os.path.join(path, item)).st_size for item in items])
     formatOfsize = '{0:%d}' % (math.log10(lengthOfsize) + 1)
     for item in items:
-        filepath = path + '/' + item
+        filepath = os.path.join(path, item)
         print modString(filepath),
         print formatOfnlink.format(os.lstat(filepath).st_nlink),
         print pwd.getpwuid(os.lstat(filepath).st_uid)[0],
