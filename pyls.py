@@ -65,20 +65,26 @@ def appendColor(path, item, color=False, classify=False):
     colorCode = ''
     endCode = C_END if color else ''
     indicator = ''
-    if os.path.islink(filepath):
-        if os.path.isdir(filepath) or os.path.isfile(filepath):
-            colorCode = C_CYAN if color else ''
+    if color:
+        if os.path.islink(filepath):
+            if os.path.isdir(filepath) or os.path.isfile(filepath):
+                colorCode = C_CYAN
+            else:
+                colorCode = C_RED
+        elif os.path.isdir(filepath):
+            colorCode = C_BLUE
+        elif os.access(filepath, os.X_OK):
+            colorCode = C_GREEN
         else:
-            colorCode = C_RED if color else ''
-        indicator = '@' if classify else ''
-    elif os.path.isdir(filepath):
-        colorCode = C_BLUE if color else ''
-        indicator = '/' if classify else ''
-    elif os.access(filepath, os.X_OK):
-        colorCode = C_GREEN if color else ''
-        indicator = '*' if classify else ''
-    else:
-        colorCode = C_END if color else ''
+            colorCode = C_END
+
+    if classify:
+        if os.path.islink(filepath):
+            indicator = '@'
+        elif os.path.isdir(filepath):
+            indicator = '/'
+        elif os.access(filepath, os.X_OK):
+            indicator = '*'
 
     return colorCode + item + endCode + indicator
 
